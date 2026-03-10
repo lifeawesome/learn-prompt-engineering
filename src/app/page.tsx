@@ -1,207 +1,45 @@
-"use client";
-
-import Image from "next/image";
-import { useState } from "react";
-
-const ROLE_PREFIX =
-  "You are a patient instructor teaching a beginner. Answer in simple, clear terms: ";
-
-function improvePrompt(raw: string): string {
-  const trimmed = raw.trim();
-  if (!trimmed) return "";
-  return ROLE_PREFIX + trimmed;
-}
+import Link from "next/link";
 
 export default function Home() {
-  const [userPrompt, setUserPrompt] = useState("");
-  const [improvedPrompt, setImprovedPrompt] = useState("");
-  const [response, setResponse] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSubmit() {
-    const trimmed = userPrompt.trim();
-    if (!trimmed) {
-      setError("Please enter a question.");
-      return;
-    }
-    setError(null);
-    const improved = improvePrompt(trimmed);
-    setImprovedPrompt(improved);
-    setLoading(true);
-    setResponse(null);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: improved }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
-        return;
-      }
-      setResponse(data.content ?? "");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-zinc-950">
-      {/* Site header */}
-      <header className="sticky top-0 z-10 border-b border-zinc-200/80 bg-white/90 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/90">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/pluralsight-logo.png"
-              alt="Pluralsight"
-              width={32}
-              height={32}
-              className="h-8 w-8 flex-shrink-0"
-            />
-            <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-              AI Micro-Lesson Prototype
-            </h1>
-            <span className="rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
-              3 min
-            </span>
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-        {/* Hero */}
-        <header className="mb-12 text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
-            Learn Prompt Engineering
-          </h2>
-          <p className="mt-3 text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
-            A small experiment exploring how generative AI can power interactive
-            technical learning experiences.
-          </p>
-        </header>
+        <p className="mb-10 text-center text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
+          A small experiment exploring how generative AI can power interactive
+          technical learning experiences.
+        </p>
 
-        {/* Step 1 — Concept */}
-        <section className="mb-12" aria-labelledby="step1-heading">
-          <h2
-            id="step1-heading"
-            className="mb-2 text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
-          >
-            1 — Concept
-          </h2>
-          <h3 className="mb-4 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Prompt Engineering Pattern: The Role Prompt
-          </h3>
-          <p className="mb-4 text-zinc-700 dark:text-zinc-300">
-            Instead of asking:
-          </p>
-          <pre className="mb-6 overflow-x-auto rounded-lg border border-zinc-200 bg-zinc-100 px-4 py-3 font-mono text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-            <code>Explain Docker.</code>
-          </pre>
-          <p className="mb-4 text-zinc-700 dark:text-zinc-300">Try:</p>
-          <pre className="overflow-x-auto rounded-lg border border-zinc-200 bg-zinc-100 px-4 py-3 font-mono text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-            <code>
-              You are a DevOps instructor teaching a beginner. Explain Docker in
-              simple terms.
-            </code>
-          </pre>
-        </section>
-
-        {/* Step 2 — Playground */}
-        <section className="mb-12" aria-labelledby="step2-heading">
-          <h2
-            id="step2-heading"
-            className="mb-2 text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
-          >
-            2 — Playground
-          </h2>
-          <label
-            htmlFor="user-prompt"
-            className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            Ask the AI a question
-          </label>
-          <textarea
-            id="user-prompt"
-            className="mb-4 w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 font-sans text-zinc-900 placeholder-zinc-500 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400"
-            rows={3}
-            placeholder="e.g. What is a container?"
-            value={userPrompt}
-            onChange={(e) => {
-              setUserPrompt(e.target.value);
-              setError(null);
-            }}
-            disabled={loading}
-          />
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={loading}
-            className="rounded-lg bg-zinc-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            {loading ? "Asking…" : "Improve & ask"}
-          </button>
-          {error && (
-            <p
-              className="mt-3 text-sm text-red-600 dark:text-red-400"
-              role="alert"
+        <h2 className="mb-6 text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+          Table of contents
+        </h2>
+        <ul className="space-y-4">
+          <li>
+            <Link
+              href="/learn"
+              className="block rounded-lg border border-zinc-200 bg-white p-5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/80"
             >
-              {error}
-            </p>
-          )}
-          {improvedPrompt && (
-            <div className="mt-6">
-              <p className="mb-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Improved prompt sent to the AI:
+              <span className="font-semibold text-zinc-900 dark:text-zinc-50">
+                Learn Prompt Engineering in 3 Minutes
+              </span>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Use the Role Prompt pattern to get better answers from AI.
               </p>
-              <pre className="overflow-x-auto rounded-lg border border-zinc-200 bg-zinc-100 px-4 py-3 font-mono text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                <code>{improvedPrompt}</code>
-              </pre>
-            </div>
-          )}
-        </section>
-
-        {/* Step 3 — AI response */}
-        <section aria-labelledby="step3-heading">
-          <h2
-            id="step3-heading"
-            className="mb-2 text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400"
-          >
-            3 — Response
-          </h2>
-          {loading && (
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Waiting for the AI…
-            </p>
-          )}
-          {response !== null && !loading && (
-            <>
-              <div className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-                <p className="whitespace-pre-wrap font-sans text-base leading-relaxed">
-                  {response}
-                </p>
-              </div>
-              <div>
-                <h4 className="mb-2 font-medium text-zinc-900 dark:text-zinc-50">
-                  Why this worked
-                </h4>
-                <ul className="list-inside list-disc space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
-                  <li>Role prompting provides context</li>
-                  <li>Clear instructions improve output</li>
-                  <li>Structured prompts reduce ambiguity</li>
-                </ul>
-              </div>
-            </>
-          )}
-          {!loading && response === null && !improvedPrompt && (
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Submit a question above to see the AI response here.
-            </p>
-          )}
-        </section>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/lab"
+              className="block rounded-lg border border-zinc-200 bg-white p-5 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600 dark:hover:bg-zinc-800/80"
+            >
+              <span className="font-semibold text-zinc-900 dark:text-zinc-50">
+                AI Hands-On Lab Simulator
+              </span>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Fix broken code and get adaptive AI feedback.
+              </p>
+            </Link>
+          </li>
+        </ul>
       </main>
     </div>
   );
