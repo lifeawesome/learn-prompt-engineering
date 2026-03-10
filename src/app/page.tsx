@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 const ROLE_PREFIX =
@@ -50,13 +51,34 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50 font-sans dark:bg-zinc-950">
+      {/* Site header */}
+      <header className="sticky top-0 z-10 border-b border-zinc-200/80 bg-white/90 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/90">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/pluralsight-logo.png"
+              alt="Pluralsight"
+              width={32}
+              height={32}
+              className="h-8 w-8 flex-shrink-0"
+            />
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              AI Micro-Lesson Prototype
+            </h1>
+            <span className="rounded-full bg-zinc-200 px-2.5 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+              3 min
+            </span>
+          </div>
+        </div>
+      </header>
+
       <main className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         {/* Hero */}
         <header className="mb-12 text-center">
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
-            Learn Prompt Engineering in 3 Minutes
-          </h1>
-          <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">
+          <h2 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-4xl">
+            Learn Prompt Engineering
+          </h2>
+          <p className="mt-3 text-lg leading-relaxed text-zinc-600 dark:text-zinc-400">
             A small experiment exploring how generative AI can power interactive
             technical learning experiences.
           </p>
