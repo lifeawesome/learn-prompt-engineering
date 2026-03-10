@@ -17,7 +17,7 @@ export function Header() {
             className="h-8 w-8 flex-shrink-0"
           />
           <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            AI Micro-Lesson Prototype
+            AI Micro-Lesson Prototype (By Dan Davidson)
           </h1>
         </Link>
       </div>
