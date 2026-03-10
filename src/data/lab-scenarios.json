@@ -1,0 +1,61 @@
+{
+  "scenarios": [
+    {
+      "id": "react-usestate",
+      "title": "Fix the React counter",
+      "brief": "The increment function is commented out and uses invalid state updates. Uncomment it and fix it so the counter works correctly.",
+      "instructions": [
+        "Uncomment the increment function.",
+        "Use the setter (setCount) instead of mutating count directly.",
+        "The fix should follow React's rules for updating state."
+      ],
+      "starterCode": "const [count, setCount] = useState(0)\n\n/*\nfunction increment() {\n  count = count + 1\n}\n*/",
+      "hint": "In React, you must use the state setter function (e.g. setCount) to update state. Direct assignment like count = count + 1 does not trigger a re-render.",
+      "checkType": "regex",
+      "pattern": "setCount\\s*\\(\\s*count\\s*\\+\\s*1\\s*\\)",
+      "whyItMatters": "Using the state setter ensures React tracks changes and re-renders the component. Direct mutation is not allowed."
+    },
+    {
+      "id": "docker-build",
+      "title": "Fix the Docker build command",
+      "brief": "Your team is trying to build a Docker image, but the command fails because it is missing required syntax. Add the image tag and build context.",
+      "instructions": [
+        "Add an image tag so the image has a readable name (use -t).",
+        "Specify the build context so Docker knows which files to include (e.g. . for current directory)."
+      ],
+      "starterCode": "docker build my-node-app",
+      "hint": "Use -t to tag the image (e.g. -t my-node-app) and add a build context (e.g. .) at the end so Docker knows where to find the Dockerfile.",
+      "checkType": "substrings",
+      "requiredSubstrings": ["-t", " ."],
+      "whyItMatters": "The -t flag names your image for later use; the build context (.) tells Docker where to find the Dockerfile and which files to include."
+    },
+    {
+      "id": "js-async-fetch",
+      "title": "Fix the async fetch",
+      "brief": "This code tries to fetch data but doesn't handle the Promise correctly. Fix it so the result is used asynchronously.",
+      "instructions": [
+        "Use async/await or .then() to handle the Promise returned by fetch.",
+        "Use the response (e.g. parse JSON or log it) after the fetch completes."
+      ],
+      "starterCode": "function getData() {\n  const res = fetch('/api/data')\n  console.log(res)\n}",
+      "hint": "fetch() returns a Promise. Use async/await: const res = await fetch(...); then use res. Remember to make the function async.",
+      "checkType": "regex",
+      "pattern": "await\\s+fetch|\\.then\\s*\\(",
+      "whyItMatters": "Async operations return Promises; you must await them or use .then() to use the result instead of the Promise object."
+    },
+    {
+      "id": "python-type-hint",
+      "title": "Fix the Python type hint",
+      "brief": "The function is missing a return type hint and one argument type. Add the correct annotations so the type checker can validate the function.",
+      "instructions": [
+        "Add a return type hint (the function returns an int).",
+        "Add a type hint for the parameter n."
+      ],
+      "starterCode": "def factorial(n):\n    if n <= 1:\n        return 1\n    return n * factorial(n - 1)",
+      "hint": "Use -> int for the return type and n: int for the parameter. Example: def factorial(n: int) -> int:",
+      "checkType": "substrings",
+      "requiredSubstrings": [": int", "-> int"],
+      "whyItMatters": "Type hints document the contract of a function and enable static type checkers and editors to catch errors before runtime."
+    }
+  ]
+}

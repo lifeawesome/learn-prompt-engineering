@@ -2,31 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { type LabScenario, labScenarios } from "@/data/lab-scenarios";
 
-const REACT_SCENARIO = {
-  id: "react-usestate",
-  title: "Fix the React counter",
-  brief:
-    "The increment function is commented out and uses invalid state updates. Uncomment it and fix it so the counter works correctly.",
-  instructions: [
-    "Uncomment the increment function.",
-    "Use the setter (setCount) instead of mutating count directly.",
-    "The fix should follow React's rules for updating state.",
-  ],
-  starterCode: `const [count, setCount] = useState(0)
-
-/*
-function increment() {
-  count = count + 1
-}
-*/`,
-  hint: "In React, you must use the state setter function (e.g. setCount) to update state. Direct assignment like count = count + 1 does not trigger a re-render.",
-  expectedPattern: /setCount\s*\(\s*count\s*\+\s*1\s*\)/,
-};
-
-function checkSolution(code: string, pattern: RegExp): boolean {
+function checkSolution(code: string, scenario: LabScenario): boolean {
   const normalized = code.replace(/\s+/g, " ").trim();
-  return pattern.test(normalized);
+  if (scenario.checkType === "regex") {
+    return scenario.pattern.test(normalized);
+  }
+  return scenario.requiredSubstrings.every((sub) => code.includes(sub));
 }
 
 const COACH_SYSTEM_PROMPT = `You are an AI coding coach. Give concise, educational feedback. Include:
@@ -37,7 +20,9 @@ const COACH_SYSTEM_PROMPT = `You are an AI coding coach. Give concise, education
 Keep the total response under 150 words. Use clear, friendly language.`;
 
 export default function LabPage() {
-  const [userCode, setUserCode] = useState(REACT_SCENARIO.starterCode);
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const scenario = labScenarios[scenarioIndex];
+  const [userCode, setUserCode] = useState(scenario.starterCode);
   const [checkResult, setCheckResult] = useState<{
     passed: boolean;
     message?: string;
@@ -47,16 +32,27 @@ export default function LabPage() {
   const [showHint, setShowHint] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const scenario = REACT_SCENARIO;
-  const currentChallenge = 1;
-  const totalChallenges = 1;
+  const totalChallenges = labScenarios.length;
+  const currentChallenge = scenarioIndex + 1;
+  const canGoNext = scenarioIndex < totalChallenges - 1;
 
-  function handleTryAgain() {
-    setUserCode(scenario.starterCode);
+  function resetForScenario(s: LabScenario) {
+    setUserCode(s.starterCode);
     setCheckResult(null);
     setCoachFeedback(null);
     setShowHint(false);
     setError(null);
+  }
+
+  function handleTryAgain() {
+    resetForScenario(scenario);
+  }
+
+  function handleNextChallenge() {
+    if (!canGoNext) return;
+    const next = labScenarios[scenarioIndex + 1];
+    setScenarioIndex(scenarioIndex + 1);
+    resetForScenario(next);
   }
 
   function handleShowHint() {
@@ -72,7 +68,7 @@ export default function LabPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: `${COACH_SYSTEM_PROMPT}\n\nScenario: ${scenario.title}. The learner asked to explain the concept. Explain why we must use setState/setCount instead of mutating state directly in React, in 2-3 short paragraphs.`,
+          prompt: `${COACH_SYSTEM_PROMPT}\n\nScenario: ${scenario.title}. The learner asked to explain the concept. Explain the key idea in 2-3 short paragraphs.`,
         }),
       });
       const data = await res.json();
@@ -87,12 +83,12 @@ export default function LabPage() {
 
   async function handleSubmit() {
     setError(null);
-    const passed = checkSolution(userCode, scenario.expectedPattern);
+    const passed = checkSolution(userCode, scenario);
     setCheckResult({
       passed,
       message: passed
         ? "Correct!"
-        : "Not quite. Look for the state setter pattern.",
+        : "Not quite. Check the instructions and try again.",
     });
 
     if (!passed) {
@@ -144,7 +140,7 @@ export default function LabPage() {
           {/* Left column — challenge */}
           <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-800">
             <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-              Challenge
+              Challenge {currentChallenge}
             </h3>
             <p className="mb-4 text-zinc-800 dark:text-zinc-200">
               {scenario.brief}
@@ -220,8 +216,7 @@ export default function LabPage() {
                   Why this matters
                 </h4>
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  Using the state setter ensures React tracks changes and
-                  re-renders the component. Direct mutation is not allowed.
+                  {scenario.whyItMatters}
                 </p>
               </div>
             )}
@@ -279,9 +274,9 @@ export default function LabPage() {
           </button>
           <button
             type="button"
-            disabled
-            className="cursor-not-allowed rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-400 dark:border-zinc-700 dark:text-zinc-500"
-            title="Coming in a follow-up"
+            onClick={handleNextChallenge}
+            disabled={!canGoNext}
+            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800 disabled:dark:opacity-50"
           >
             Next challenge
           </button>
